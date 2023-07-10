@@ -1,6 +1,6 @@
 #include "../libwb/wb.h"
-#define TILE_WIDTH 16
-#define BLOCK_WIDTH 16
+#define TILE_WIDTH 32
+#define BLOCK_WIDTH 32
 
 #define wbCheck(stmt)                                                     \
   do {                                                                    \
@@ -12,12 +12,10 @@
     }                                                                     \
   } while (0)
 
-// Compute C = A * B
 __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
                                int numAColumns, int numBRows,
                                int numBColumns, int numCRows,
                                int numCColumns) {
-  //@@ Insert code to implement matrix multiplication here
   __shared__ float Mds[TILE_WIDTH][TILE_WIDTH];
   __shared__ float Nds[TILE_WIDTH][TILE_WIDTH];
   int bx = blockIdx.x; int by = blockIdx.y;
@@ -25,7 +23,8 @@ __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
   int Row = by * TILE_WIDTH + ty;
   int Col = bx * TILE_WIDTH + tx;
   float Pvalue = 0;
-  for (int m = 0; m < ceil((float)numAColumns / TILE_WIDTH); ++m) {
+  int numTiles = (numAColumns + TILE_WIDTH - 1) / TILE_WIDTH;
+  for (int m = 0; m < numTiles; ++m) {
     if (Row < numARows && m * TILE_WIDTH + tx < numAColumns) {
       Mds[ty][tx] = A[Row * numAColumns + m * TILE_WIDTH + tx];
     } else {
@@ -37,12 +36,19 @@ __global__ void matrixMultiply(float *A, float *B, float *C, int numARows,
       Nds[ty][tx] = 0.0;
     }
     __syncthreads();
-    for (int k = 0; k < TILE_WIDTH; ++k) {
-      Pvalue += Mds[ty][k] * Nds[k][tx];
+    int tileWidth = min(TILE_WIDTH, numAColumns - m * TILE_WIDTH);
+    if (Row < numARows && Col < numBColumns) {
+        for (int k = 0; k < tileWidth; ++k) {
+            Pvalue += Mds[ty][k] * Nds[k][tx];
+        }
     }
     __syncthreads();
   }
+  if (Row < numCRows && Col < numCColumns) {
+    C[Row * numCColumns + Col] = Pvalue;
+  }
 }
+
 
 int main(int argc, char **argv) {
   wbArg_t args;
@@ -81,7 +87,7 @@ int main(int argc, char **argv) {
   //@@ Allocate GPU memory here
   cudaMalloc((void **) &deviceA, numARows * numAColumns * sizeof(float));
   cudaMalloc((void **) &deviceB, numBRows * numBColumns * sizeof(float));
-  cudaMalloc((void **) &deviceC, numARows * numBColumns * sizeof(float));
+  cudaMalloc((void **) &deviceC, numCRows * numCColumns * sizeof(float));
 
   wbTime_stop(GPU, "Allocating GPU memory.");
 
@@ -93,7 +99,7 @@ int main(int argc, char **argv) {
   wbTime_stop(GPU, "Copying input memory to the GPU.");
 
   //@@ Initialize the grid and block dimensions here
-  dim3 Grid(ceil((float)numCRows / BLOCK_WIDTH), ceil((float)numCColumns / BLOCK_WIDTH), 1);
+  dim3 Grid(ceil(((float)numCColumns) / TILE_WIDTH), ceil(((float)numCRows) / TILE_WIDTH), 1);
   dim3 Block(BLOCK_WIDTH, BLOCK_WIDTH, 1);
 
   wbTime_start(Compute, "Performing CUDA computation");
