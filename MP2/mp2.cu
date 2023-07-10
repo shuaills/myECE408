@@ -72,14 +72,13 @@ int main(int argc, char **argv) {
 
     wbTime_start(GPU, "Copying input memory to the GPU.");
     //@@ Copy memory to the GPU here
-
     cudaMemcpy(deviceA, hostA, numARows * numAColumns * sizeof(float), cudaMemcpyHostToDevice);
     cudaMemcpy(deviceB, hostB, numBRows * numBColumns * sizeof(float), cudaMemcpyHostToDevice);
     wbTime_stop(GPU, "Copying input memory to the GPU.");
 
     // @@ Initialize the grid and block dimension here
     
-    dim3 Grid(ceil((float)numCRows / BLOCK_WIDTH), ceil((float)numCColumns / BLOCK_WIDTH), 1);
+    dim3 Grid(ceil((float)numCColumns / BLOCK_WIDTH), ceil((float)numCRows / BLOCK_WIDTH), 1);
     dim3 Block(BLOCK_WIDTH, BLOCK_WIDTH, 1);
     wbTime_start(Compute, "Performing CUDA computation");
     // @@ Launch the GPU Kernel her
