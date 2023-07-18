@@ -16,7 +16,7 @@
 //@@ Define any useful program-wide constants here
 #define MASK_WIDTH 3
 #define MASK_RADIUS 1
-#define TILE_WIDTH 8
+#define TILE_WIDTH 3
 #define BLOCK_WIDTH (TILE_WIDTH + MASK_WIDTH - 1)
 
 //@@ Define constant memory for device kernel here
