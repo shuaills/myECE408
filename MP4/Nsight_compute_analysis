@@ -6,5 +6,6 @@ for i in 0 1 2 3 4 5;
 do
 	echo "--------------";
 	echo "Dataset " $i 
-	ncu --section-folder=restore -o bench/compute_profile_${i} ./MP4 -e ./data/${i}/output.dat -i ./data/${i}/input.dat,./data/${i}/kernel.dat -t vector
+	ncu -f -o bench/compute_profile_${i} ./MP4 -e ./data/${i}/output.dat -i ./data/${i}/input.dat,./data/${i}/kernel.dat -t vector
 done
+
