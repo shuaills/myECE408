@@ -27,7 +27,7 @@
 
 int train() {
   // data
-  MNIST dataset("../data/mnist/");
+  MNIST dataset("../data/fmnist/");
   dataset.read();
   int n_train = dataset.train_data.cols();
   int dim_in = dataset.train_data.rows();
@@ -61,8 +61,7 @@ int train() {
   // train & test
   SGD opt(0.001, 5e-4, 0.9, true);
   // SGD opt(0.001);
-  //const int n_epoch = 5;
-  const int n_epoch = 1;
+  const int n_epoch = 5;
   const int batch_size = 128;
   for (int epoch = 0; epoch < n_epoch; epoch ++) {
     shuffle_data(dataset.train_data, dataset.train_labels);

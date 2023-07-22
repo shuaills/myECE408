@@ -4,7 +4,7 @@
 #include <vector>
 #include "../layer.h"
 
-class Conv: public Layer {
+class gpu_Conv: public Layer {
  private:
   const int dim_in;
   int dim_out;
@@ -32,7 +32,7 @@ class Conv: public Layer {
   void init();
 
  public:
-  Conv(int channel_in, int height_in, int width_in, int channel_out,
+  gpu_Conv(int channel_in, int height_in, int width_in, int channel_out,
        int height_kernel, int width_kernel, int stride = 1, int pad_w = 0,
        int pad_h = 0) :
        dim_in(channel_in * height_in * width_in),
@@ -42,7 +42,6 @@ class Conv: public Layer {
   { init(); }
 
   void forward(const Matrix& bottom);
-  void gpu_forward(const Matrix& bottom);
   void backward(const Matrix& bottom, const Matrix& grad_top);
   void update(Optimizer& opt);
   void im2col(const Vector& image, Matrix& data_col);

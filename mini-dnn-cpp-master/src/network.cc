@@ -1,13 +1,25 @@
 #include "./network.h"
 
 void Network::forward(const Matrix& input) {
-  if (layers.empty())
+  if (layers.empty()) {
+    std::cout << "Network is empty. Nothing to forward." << std::endl;
     return;
+  }
+
+  std::cout << "Input matrix size: " << input.rows() << " x " << input.cols() << std::endl;
+  
   layers[0]->forward(input);
+  std::cout << "After forwarding through the first layer, output matrix size: " 
+            << layers[0]->output().rows() << " x " << layers[0]->output().cols() << std::endl;
+
   for (int i = 1; i < layers.size(); i++) {
+    std::cout << "Forwarding through layer " << i << "..." << std::endl;
     layers[i]->forward(layers[i-1]->output());
+    std::cout << "After forwarding through layer " << i << ", output matrix size: " 
+              << layers[i]->output().rows() << " x " << layers[i]->output().cols() << std::endl;
   }
 }
+
 
 void Network::backward(const Matrix& input, const Matrix& target) {
   int n_layer = layers.size();
