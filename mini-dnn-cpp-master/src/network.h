@@ -8,6 +8,9 @@
 #include "./optimizer.h"
 #include "./utils.h"
 
+#include <fstream>
+
+
 class Network {
  private:
   std::vector<Layer*> layers;  // layer pointers
@@ -30,6 +33,8 @@ class Network {
   void forward(const Matrix& input);
   void backward(const Matrix& input, const Matrix& target);
   void update(Optimizer& opt);
+  void save(const std::string& filename);
+  void load(const std::string& filename);
 
   const Matrix& output() { return layers.back()->output(); }
   float get_loss() { return loss->output(); }

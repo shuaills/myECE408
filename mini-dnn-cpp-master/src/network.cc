@@ -110,3 +110,55 @@ void Network::check_gradient(const Matrix& input, const Matrix& target,
   // Restore original parameters
   this->set_parameters(param);
 }
+
+void Network::save(const std::string& filename) {
+  std::ofstream fout(filename, std::ios::binary);
+  
+  // Get parameters
+  auto params = get_parameters();
+
+  // Write number of layers 
+  int num_layers = params.size();
+  fout.write(reinterpret_cast<const char*>(&num_layers), sizeof(int));
+
+  // Write each layer's parameters
+  for(const auto& layer_params : params) {
+    // Write number of parameters
+    int num_params = layer_params.size();
+    fout.write(reinterpret_cast<const char*>(&num_params), sizeof(int));
+
+    // Write parameter values
+    for(float param : layer_params) {
+      fout.write(reinterpret_cast<const char*>(&param), sizeof(float));
+    }
+  }
+
+  fout.close();
+}
+
+void Network::load(const std::string& filename) {
+  std::ifstream fin(filename, std::ios::binary);
+
+  // Read number of layers
+  int num_layers;
+  fin.read(reinterpret_cast<char*>(&num_layers), sizeof(int));
+
+  // Read each layer's parameters
+  std::vector<std::vector<float>> params(num_layers);
+  for(int i = 0; i < num_layers; ++i) {
+    // Read number of parameters
+    int num_params;
+    fin.read(reinterpret_cast<char*>(&num_params), sizeof(int));
+
+    // Read parameter values
+    params[i].resize(num_params);
+    for(int j = 0; j < num_params; ++j) {
+      fin.read(reinterpret_cast<char*>(&params[i][j]), sizeof(float));
+    }
+  }
+
+  // Set network parameters
+  set_parameters(params);
+
+  fin.close();
+}

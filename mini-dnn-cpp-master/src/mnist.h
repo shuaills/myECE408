@@ -21,6 +21,7 @@ class MNIST {
 
   explicit MNIST(std::string data_dir) : data_dir(data_dir) {}
   void read();
+  void MNIST::read_test_data();
 };
 
 #endif  // SRC_MNIST_H_
