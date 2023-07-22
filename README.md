@@ -1,8 +1,8 @@
 # myECE408
 
-ECE408 is a great course offered by UIUC on deep learning. However, for students not enrolled at UIUC, it can be challenging to follow along with the labs and milestone projects which require access to specific computing resources. 
+ECE408 is a great course offered by UIUC on learning CUDA. However, for students not enrolled at UIUC, it can be challenging to follow along with the labs and milestone projects which require access to specific computing resources. 
 
-This project aims to make it easier to learn the material in ECE408 using your own local environment (GPU, system etc). It provides implementations of key assignments from the course, so you can get hands-on deep learning experience.
+This project aims to make it easier to learn the material in ECE408 using your own local environment (GPU, system etc). It provides implementations of key assignments from the course, so you can get hands-on CUDA experience.
 
 
 ## Outcomes
