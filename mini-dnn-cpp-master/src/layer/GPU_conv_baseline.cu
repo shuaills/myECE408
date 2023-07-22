@@ -116,6 +116,8 @@ __host__ void GPUInterface::conv_forward_gpu_epilog(float *host_y, float *device
   int H_out = H - K + 1;
   int W_out = W - K + 1;
 
+  
+
   // Print H_out and W_out for confirmation
   printf("H_out: %d, W_out: %d\n", H_out, W_out);
 
