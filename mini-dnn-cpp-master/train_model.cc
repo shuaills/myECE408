@@ -25,7 +25,7 @@
 #include "src/optimizer/sgd.h"
 
 
-int main() {
+int train() {
   // data
   MNIST dataset("../data/mnist/");
   dataset.read();
@@ -61,7 +61,8 @@ int main() {
   // train & test
   SGD opt(0.001, 5e-4, 0.9, true);
   // SGD opt(0.001);
-  const int n_epoch = 5;
+  //const int n_epoch = 5;
+  const int n_epoch = 1;
   const int batch_size = 128;
   for (int epoch = 0; epoch < n_epoch; epoch ++) {
     shuffle_data(dataset.train_data, dataset.train_labels);
@@ -93,6 +94,9 @@ int main() {
     std::cout << epoch + 1 << "-th epoch, test acc: " << acc << std::endl;
     std::cout << std::endl;
   }
+  dnn.save("model.dat");
+
+
   return 0;
 }
 
