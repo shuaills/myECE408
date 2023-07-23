@@ -11,8 +11,8 @@ cmake ..
 make
 ```
 
-Run `./demo`.
+Run `./train` first to get model parameters.
+Then run './inference' to test your CUDA code.
 
 Result: 
-simple neural network with 3 FC layers can obtain `0.97+` accuracy on MNIST testset.
-LeNet-like CNN can obtain `0.98+` accuracy on MNIST testset.
+simple neural network with 3 FC layers can obtain `0.86+` accuracy on Fashion MNIST testset.
