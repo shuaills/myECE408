@@ -5,6 +5,11 @@ ECE408 is a great course offered by UIUC on learning CUDA. However, for students
 This project aims to make it easier to learn the material in ECE408 using your own local environment (GPU, system etc). It provides implementations of key assignments from the course, so you can get hands-on CUDA experience.
 
 
+ECE408 Class Schedule:
+https://wiki.illinois.edu/wiki/display/ECE408/Class+Schedule
+ECE408 Labs and Project:
+https://wiki.illinois.edu/wiki/display/ECE408/Labs+and+Project
+
 ## Outcomes
 
 By completing this project, you will:
