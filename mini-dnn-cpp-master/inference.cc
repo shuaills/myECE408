@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <iostream>
 
-int inference() {
+int main() {
   std::cout<<"Loading fashion-mnist data...";
   MNIST dataset("../data/fmnist/");
   dataset.read_test_data();
@@ -24,15 +24,15 @@ int inference() {
   Network dnn;
 
   std::cout<<"Creating layers...";
-  Layer* conv1 = new gpu_Conv(1, 28, 28, 4, 5, 5, 1, 0, 0);
-  Layer* pool1 = new MaxPooling(4, 14, 14, 2, 2, 2);
-  Layer* conv2 = new gpu_Conv(4, 7, 7, 16, 5, 5, 1, 0, 0);
-  Layer* pool2 = new MaxPooling(16, 7, 7, 2, 2, 2);
-  Layer* fc3 = new FullyConnected(pool2->output_dim(), 32);
+  Layer* conv1 = new gpu_Conv(1, 28, 28, 4, 5, 5, 1, 0, 0); // Output size: 24x24
+  Layer* pool1 = new MaxPooling(4, 24, 24, 2, 2, 2); // Output size: 12x12
+  Layer* conv2 = new gpu_Conv(4, 12, 12, 16, 5, 5, 1, 0, 0); // Output size: 8x8
+  Layer* pool2 = new MaxPooling(16, 8, 8, 2, 2, 2); // Output size: 4x4
+  Layer* fc3 = new FullyConnected(pool2->output_dim(), 32); // Input dimension: 16*16*16 = 256
   Layer* fc4 = new FullyConnected(32, 10);
   Layer* relu1 = new ReLU;
   Layer* relu2 = new ReLU;
-  Layer* relu3 = new ReLU; 
+  Layer* relu3 = new ReLU;
   Layer* softmax = new Softmax;
   std::cout<<"Done"<<std::endl;
 

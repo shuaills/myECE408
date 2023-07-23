@@ -25,7 +25,7 @@
 #include "src/optimizer/sgd.h"
 
 
-int main() {
+int train() {
   // data
   MNIST dataset("../data/fmnist/");
   dataset.read();
@@ -35,11 +35,11 @@ int main() {
   std::cout << "mnist test number: " << dataset.test_labels.cols() << std::endl;
   // dnn
   Network dnn;
-  Layer* conv1 = new Conv(1, 28, 28, 4, 5, 5, 1, 0, 0);
-  Layer* pool1 = new MaxPooling(4, 14, 14, 2, 2, 2);
-  Layer* conv2 = new Conv(4, 7, 7, 16, 5, 5, 1, 2, 2);
-  Layer* pool2 = new MaxPooling(16, 7, 7, 2, 2, 2);
-  Layer* fc3 = new FullyConnected(pool2->output_dim(), 32);
+  Layer* conv1 = new Conv(1, 28, 28, 4, 5, 5, 1, 0, 0); // Output size: 24x24
+  Layer* pool1 = new MaxPooling(4, 24, 24, 2, 2, 2); // Output size: 12x12
+  Layer* conv2 = new Conv(4, 12, 12, 16, 5, 5, 1, 0, 0); // Output size: 8x8
+  Layer* pool2 = new MaxPooling(16, 8, 8, 2, 2, 2); // Output size: 4x4
+  Layer* fc3 = new FullyConnected(pool2->output_dim(), 32); // Input dimension: 16*16*16 = 256
   Layer* fc4 = new FullyConnected(32, 10);
   Layer* relu1 = new ReLU;
   Layer* relu2 = new ReLU;
@@ -55,6 +55,7 @@ int main() {
   dnn.add_layer(relu3);
   dnn.add_layer(fc4);
   dnn.add_layer(softmax);
+
   // loss
   Loss* loss = new CrossEntropy;
   dnn.add_loss(loss);
