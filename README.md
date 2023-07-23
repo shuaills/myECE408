@@ -13,22 +13,44 @@ By completing the notebooks in this project, you will:
 
 Even without access to UIUC's specific infrastructure, you can get hands-on practice with the key concepts from ECE408. Let me know if any part of the course content is unclear or missing - I'm happy to add more notebooks to cover the full curriculum.
 
-## Contents
-
-- MP1 - Image Classification
-- MP2 - Object Detection
-- MP3 - GANs
-- Milestone 1 - CPU Conv
-- Milestone 2 - GPU Conv Baseline
 ## Usage
 
-The labs and milestones are set up as standalone Python notebooks. To run them:
+This is a repository containing subfolders for individual ECE408 CUDA labs and milestone projects. 
 
-1. Clone this repository
-2. Install dependencies
-3. Run the notebooks, modifying as needed to use your local compute resources
+To run them, follow these steps:
 
-### GPU Details
+1. Clone this repository locally, either using git clone or by downloading the zip file from GitHub and extracting it.
+
+2. Each lab and project has a CMake file for compilation. Go into the subfolder, create a build directory, and run the cmake .. command to generate the Makefile.
+
+3. Use the make command to compile and generate the executable. 
+
+Here are separate explanations for the milestone projects and labs in English:
+
+### For milestone projects:
+
+1. The project code is in mini-dnn/GPU_conv_baseline.cu. This is a baseline CUDA convolution layer implementation.
+
+2. You need to modify this file and utilize learned CUDA optimization techniques to accelerate convolution computation, such as shared memory, loop unrolling, etc. 
+
+3. You can incrementally optimize in steps, implementing one technique at a time. Test and record speedups.
+
+4. The goal is to maximize convolution layer execution speed as much as possible, achieving peak performance. 
+
+5. Commit your optimized code to GitHub for comparison with others' results.
+
+### For labs:
+
+1. Each lab has a separate folder containing code templates. 
+
+2. You need to edit the specified files and complete the code according to lab requirements.
+
+3. The labs cover various aspects of CUDA programming, such as memory, threads, etc.
+
+4. Run the 'run_datasets' to verify correct implementation.
+
+
+### MP0 results : GPU Details
 
 There is 1 device supporting CUDA
 
