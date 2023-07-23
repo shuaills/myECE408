@@ -25,7 +25,7 @@
 #include "src/optimizer/sgd.h"
 
 
-int train() {
+int main() {
   // data
   MNIST dataset("../data/fmnist/");
   dataset.read();
