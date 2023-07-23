@@ -75,13 +75,13 @@ __host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_y, const f
     // We pass double pointers for you to initialize the relevant device pointers,
     //  which are passed to the other two functions.
 
-// Useful snippet for error checking
-   cudaError_t error = cudaGetLastError();
-   if(error != cudaSuccess)
-   {
-     std::cout<<"CUDA error: "<<cudaGetErrorString(error)<<std::endl;
-     exit(-1);
- }
+    // Useful snippet for error checking
+    // cudaError_t error = cudaGetLastError();
+    // if(error != cudaSuccess)
+    // {
+    //     std::cout<<"CUDA error: "<<cudaGetErrorString(error)<<std::endl;
+    //     exit(-1);
+    // }
 
 }
 
@@ -96,7 +96,7 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_y, const float *devic
     int Y = W_grid * H_grid;
 
     dim3 blockDim(TILE_WIDTH, TILE_WIDTH, 1);
-    dim3 gridDim((W_out + TILE_WIDTH - 1) / TILE_WIDTH, (H_out + TILE_WIDTH - 1) / TILE_WIDTH, B);
+    dim3 gridDim(M, Y, B);
     conv_forward_kernel<<<gridDim, blockDim>>>(device_y, device_x, device_k, B, M, C, H, W, K);
     cudaDeviceSynchronize();
 }
@@ -104,46 +104,14 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_y, const float *devic
 
 __host__ void GPUInterface::conv_forward_gpu_epilog(float *host_y, float *device_y, float *device_x, float *device_k, const int B, const int M, const int C, const int H, const int W, const int K)
 {
-
-  // Check device_y is allocated properly
-  cudaError_t cuda_status = cudaGetLastError();
-  if (cuda_status != cudaSuccess) {
-    printf("Device y memory error: %s\n", cudaGetErrorString(cuda_status));
-    return;
-  }
-
-  // Compute H_out and W_out
-  int H_out = H - K + 1;
-  int W_out = W - K + 1;
-
-  
-
-  // Print H_out and W_out for confirmation
-  printf("H_out: %d, W_out: %d\n", H_out, W_out);
-
-  // Allocate host_y memory
-  host_y = new float[B * M * H_out * W_out];
-
-  // Copy over a subset to test
-  int size = B * M * H_out * W_out; 
-  cudaMemcpyAsync(host_y, device_y, size * sizeof(float), cudaMemcpyDeviceToHost);
-  cudaDeviceSynchronize();
-
-  // Check for async copy errors
-  cuda_status = cudaGetLastError();
-  if (cuda_status != cudaSuccess) {
-    printf("Async copy failed: %s\n", cudaGetErrorString(cuda_status));
-    return;
-  }
-
-  // Copy full result back
-  cudaMemcpy(host_y, device_y, B * M * H_out * W_out * sizeof(float), cudaMemcpyDeviceToHost);
-  
-  // Free GPU memory
-  cudaFree(device_y);
-  cudaFree(device_x);
-  cudaFree(device_k);
-
+    // Copy the output back to host
+    const int H_out = H - K + 1;
+    const int W_out = W - K + 1;
+    cudaMemcpy(host_y, device_y, B * M * H_out * W_out * sizeof(float), cudaMemcpyDeviceToHost);
+    // Free device memory
+    cudaFree(device_y);
+    cudaFree(device_x);
+    cudaFree(device_k);
 }
 
 
