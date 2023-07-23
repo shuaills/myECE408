@@ -7,11 +7,12 @@ This project aims to make it easier to learn the material in ECE408 using your o
 
 ## Outcomes
 
-By completing the notebooks in this project, you will:
+By completing this project, you will:
 
 - Gain practical experience with CUDA
 
-Even without access to UIUC's specific infrastructure, you can get hands-on practice with the key concepts from ECE408. Let me know if any part of the course content is unclear or missing - I'm happy to add more notebooks to cover the full curriculum.
+Even without access to UIUC's specific infrastructure, you can get hands-on practice with the key concepts from ECE408. 
+Let me know if any part of the course content is unclear or missing - I'm happy to add more details to cover the full curriculum.
 
 ## Usage
 
