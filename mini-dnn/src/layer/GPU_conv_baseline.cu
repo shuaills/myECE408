@@ -97,8 +97,20 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_y, const float *devic
 
     dim3 blockDim(TILE_WIDTH, TILE_WIDTH, 1);
     dim3 gridDim(M, Y, B);
+    cudaEvent_t start, stop; 
+    cudaEventCreate(&start);
+    cudaEventRecord(start); // 记录t1
     conv_forward_kernel<<<gridDim, blockDim>>>(device_y, device_x, device_k, B, M, C, H, W, K);
     cudaDeviceSynchronize();
+    cudaEventCreate(&stop);
+    cudaEventRecord(stop); // 记录t2
+    cudaEventSynchronize(stop); // 同步使事件生效
+    float elapsedTime;
+    cudaEventElapsedTime(&elapsedTime, start, stop); // t2 - t1
+    printf("Op Time: %f ms\n", elapsedTime);
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+
 }
 
 

@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>
 #include "gpu-new-forward.h"
+#include <cuda_runtime.h>
 
 void gpu_Conv::init() {
   height_out = (1 + (height_in - height_kernel + 2 * pad_h) / stride);
@@ -19,6 +20,9 @@ void gpu_Conv::init() {
 }
 
 void gpu_Conv::forward(const Matrix& bottom) {
+  cudaEvent_t start1, stop1;
+  cudaEventCreate(&start1);
+  cudaEventRecord(start1); // start timer
 
   // 1. 计算输出大小
   height_out = (height_in - height_kernel + 2 * pad_h) / stride + 1; 
@@ -60,6 +64,18 @@ void gpu_Conv::forward(const Matrix& bottom) {
   top.resize(H_out * W_out * M, B);
   gpu_interface.conv_forward_gpu_epilog(top.data(), device_y, device_x, device_k, B, M, C, H, W, K);
   std::cout << "Result copied back to host." << std::endl;
+
+  cudaEventCreate(&stop1);
+  cudaEventRecord(stop1);
+  cudaEventSynchronize(stop1);
+
+  float elapsedTime;
+  cudaEventElapsedTime(&elapsedTime, start1, stop1); // calc elapsed time
+
+  std::cout << "Conv1 layer time: " << elapsedTime << "ms" << std::endl;
+
+  cudaEventDestroy(start1);
+  cudaEventDestroy(stop1);
 
 }
 

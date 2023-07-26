@@ -54,18 +54,11 @@ int main() {
   dnn.load("model.dat");
   std::cout<<"Done"<<std::endl;
 
-  std::cout<<"Performing forward pass...";
 // 打印出数据的行数和列数
   std::cout << "dataset.test_data rows: " << dataset.test_data.rows() << std::endl;
   std::cout << "dataset.test_data cols: " << dataset.test_data.cols() << std::endl;
 
-// 打印出数据的一些统计信息，例如最大值、最小值和平均值
-  Eigen::MatrixXf::Index maxRow, maxCol;
-  float max = dataset.test_data.maxCoeff(&maxRow, &maxCol);
-  Eigen::MatrixXf::Index minRow, minCol;
-  float min = dataset.test_data.minCoeff(&minRow, &minCol);
-  float mean = dataset.test_data.mean();
-  std::cout << "Max: " << max << ", Min: " << min << ", Mean: " << mean << std::endl;
+  std::cout<<"Performing forward pass...";
   dnn.forward(dataset.test_data);
   std::cout<<"Done"<<std::endl;
 
