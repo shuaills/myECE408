@@ -6,7 +6,8 @@ include_directories ("${PROJECT_SOURCE_DIR}/third_party/eigen")
 find_package(CUDA REQUIRED)
 
 # 将 CUDA 源文件编译成库
-cuda_add_library(MyCUDAFiles src/layer/GPU_conv_baseline.cu)
+#cuda_add_library(MyCUDAFiles src/layer/gpu_conv_baseline.cu)
+cuda_add_library(MyCUDAFiles src/layer/gpu_conv_optimization.cu)
 
 # 添加 src 子目录
 add_subdirectory(src)
