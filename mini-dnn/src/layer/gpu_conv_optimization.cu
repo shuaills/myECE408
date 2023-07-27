@@ -4,7 +4,7 @@
 
 #define TILE_WIDTH 16
 
-__global__ void conv_forward_kernel(float* __restrict__ y, const float* __restrict__ x, const float* __restrict__ k, const int B, const int M, const int C, const int H, const int W, const int K)
+__global__ void conv_forward_kernel(float *y, const float *x, const float *k, const int B, const int M, const int C, const int H, const int W, const int K)
 {
     /*
     Modify this function to implement the forward pass described in Chapter 16.
@@ -26,6 +26,11 @@ __global__ void conv_forward_kernel(float* __restrict__ y, const float* __restri
     const int H_out = H - K + 1;
     const int W_out = W - K + 1;
     const int W_grid = (W_out + TILE_WIDTH - 1) / TILE_WIDTH;
+    int BLOCK_WIDTH = TILE_WIDTH + K - 1;
+
+    extern __shared__ float shmem[];
+    float* shared_X = &shmem[0];
+
     // (void)H_out; // silence declared but never referenced warning. remove this line when you start working
     // (void)W_out; // silence declared but never referenced warning. remove this line when you start working
 
@@ -34,76 +39,38 @@ __global__ void conv_forward_kernel(float* __restrict__ y, const float* __restri
     // float a = y4d(0,0,0,0)
     // y4d(0,0,0,0) = a
 
-    #define y4d(i3, i2, i1, i0) y[(i3) * (M * H_out * W_out) + (i2) * (H_out * W_out) + (i1) * (W_out) + i0]
-    #define x4d(i3, i2, i1, i0) x[(i3) * (C * H * W) + (i2) * (H * W) + (i1) * (W) + i0]
-    #define k4d(i3, i2, i1, i0) k[(i3) * (C * K * K) + (i2) * (K * K) + (i1) * (K) + i0]
+#define y4d(i3, i2, i1, i0) y[(i3) * (M * H_out * W_out) + (i2) * (H_out * W_out) + (i1) * (W_out) + i0]
+#define x4d(i3, i2, i1, i0) x[(i3) * (C * H * W) + (i2) * (H * W) + (i1) * (W) + i0]
+#define k4d(i3, i2, i1, i0) k[(i3) * (C * K * K) + (i2) * (K * K) + (i1) * (K) + i0]
 
     // Insert your GPU convolution kernel code here
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int tIdx = tx + ty * BLOCK_WIDTH;
     int m = blockIdx.x;
     int b = blockIdx.z;
-    int h = (blockIdx.y / W_grid) * TILE_WIDTH + threadIdx.y;
-    int w = (blockIdx.y % W_grid) * TILE_WIDTH + threadIdx.x;
+    int h = (blockIdx.y / W_grid) * TILE_WIDTH + ty;
+    int w = (blockIdx.y % W_grid) * TILE_WIDTH + tx;
     float acc = 0.0f;
-    if((h < H_out) && (w < W_out)){
-        for(int c = 0; c < C; c++){
-            acc += x4d(b,c,h+0,w+0) * k4d(m,c,0,0);
-            acc += x4d(b,c,h+0,w+1) * k4d(m,c,0,1);
-            acc += x4d(b,c,h+0,w+2) * k4d(m,c,0,2);
-            acc += x4d(b,c,h+0,w+3) * k4d(m,c,0,3);
-            acc += x4d(b,c,h+0,w+4) * k4d(m,c,0,4);
-            acc += x4d(b,c,h+0,w+5) * k4d(m,c,0,5);
-            acc += x4d(b,c,h+0,w+6) * k4d(m,c,0,6);
+    
+    for(int c = 0; c < C; c++){
+        // copy data from global memory to shared memory
+        if((h < H) && (w < W))
+            shared_X[tIdx] = x4d(b, c, h, w);
+        else
+            shared_X[tIdx] = 0.0f;
+        __syncthreads();
 
-            acc += x4d(b,c,h+1,w+0) * k4d(m,c,1,0);
-            acc += x4d(b,c,h+1,w+1) * k4d(m,c,1,1);
-            acc += x4d(b,c,h+1,w+2) * k4d(m,c,1,2);
-            acc += x4d(b,c,h+1,w+3) * k4d(m,c,1,3);
-            acc += x4d(b,c,h+1,w+4) * k4d(m,c,1,4);
-            acc += x4d(b,c,h+1,w+5) * k4d(m,c,1,5);
-            acc += x4d(b,c,h+1,w+6) * k4d(m,c,1,6);
-
-            acc += x4d(b,c,h+2,w+0) * k4d(m,c,2,0);
-            acc += x4d(b,c,h+2,w+1) * k4d(m,c,2,1);
-            acc += x4d(b,c,h+2,w+2) * k4d(m,c,2,2);
-            acc += x4d(b,c,h+2,w+3) * k4d(m,c,2,3);
-            acc += x4d(b,c,h+2,w+4) * k4d(m,c,2,4);
-            acc += x4d(b,c,h+2,w+5) * k4d(m,c,2,5);
-            acc += x4d(b,c,h+2,w+6) * k4d(m,c,2,6);  
-
-            acc += x4d(b,c,h+3,w+0) * k4d(m,c,3,0);
-            acc += x4d(b,c,h+3,w+1) * k4d(m,c,3,1);
-            acc += x4d(b,c,h+3,w+2) * k4d(m,c,3,2);
-            acc += x4d(b,c,h+3,w+3) * k4d(m,c,3,3);
-            acc += x4d(b,c,h+3,w+4) * k4d(m,c,3,4);
-            acc += x4d(b,c,h+3,w+5) * k4d(m,c,3,5);
-            acc += x4d(b,c,h+3,w+6) * k4d(m,c,3,6);
-
-            acc += x4d(b,c,h+4,w+0) * k4d(m,c,4,0);
-            acc += x4d(b,c,h+4,w+1) * k4d(m,c,4,1);
-            acc += x4d(b,c,h+4,w+2) * k4d(m,c,4,2);
-            acc += x4d(b,c,h+4,w+3) * k4d(m,c,4,3);
-            acc += x4d(b,c,h+4,w+4) * k4d(m,c,4,4);
-            acc += x4d(b,c,h+4,w+5) * k4d(m,c,4,5);
-            acc += x4d(b,c,h+4,w+6) * k4d(m,c,4,6);
-
-            acc += x4d(b,c,h+5,w+0) * k4d(m,c,5,0);
-            acc += x4d(b,c,h+5,w+1) * k4d(m,c,5,1);
-            acc += x4d(b,c,h+5,w+2) * k4d(m,c,5,2);
-            acc += x4d(b,c,h+5,w+3) * k4d(m,c,5,3);
-            acc += x4d(b,c,h+5,w+4) * k4d(m,c,5,4);
-            acc += x4d(b,c,h+5,w+5) * k4d(m,c,5,5);
-            acc += x4d(b,c,h+5,w+6) * k4d(m,c,5,6);
-
-            acc += x4d(b,c,h+6,w+0) * k4d(m,c,6,0);
-            acc += x4d(b,c,h+6,w+1) * k4d(m,c,6,1);
-            acc += x4d(b,c,h+6,w+2) * k4d(m,c,6,2);
-            acc += x4d(b,c,h+6,w+3) * k4d(m,c,6,3);
-            acc += x4d(b,c,h+6,w+4) * k4d(m,c,6,4);
-            acc += x4d(b,c,h+6,w+5) * k4d(m,c,6,5);
-            acc += x4d(b,c,h+6,w+6) * k4d(m,c,6,6);
+        // convolution
+        if((h < H_out) && (w < W_out)){
+            for(int p = 0; p < K; p++)
+                for(int q = 0; q < K; q++)
+                    acc += x4d(b, c, h + p, w + q) * k4d(m, c, p, q);
         }
-        y4d(b, m, h, w) = acc;
+        __syncthreads();
     }
+    if((h < H_out) && (w < W_out))
+        y4d(b, m, h, w) = acc;
 
 #undef y4d
 #undef x4d
@@ -134,6 +101,7 @@ __host__ void GPUInterface::conv_forward_gpu_prolog(const float *host_y, const f
     //     std::cout<<"CUDA error: "<<cudaGetErrorString(error)<<std::endl;
     //     exit(-1);
     // }
+
 }
 
 
@@ -142,13 +110,15 @@ __host__ void GPUInterface::conv_forward_gpu(float *device_y, const float *devic
     // Set the kernel dimensions and call the kernel
     const int H_out = H - K + 1;
     const int W_out = W - K + 1;
+    int BLOCK_WIDTH = TILE_WIDTH + K - 1;
     int W_grid = (W_out + TILE_WIDTH - 1) / TILE_WIDTH;
     int H_grid = (H_out + TILE_WIDTH - 1) / TILE_WIDTH;
     int Y = W_grid * H_grid;
 
-    dim3 blockDim(TILE_WIDTH, TILE_WIDTH, 1);
+    dim3 blockDim(BLOCK_WIDTH, BLOCK_WIDTH, 1);
     dim3 gridDim(M, Y, B);
-    conv_forward_kernel<<<gridDim, blockDim>>>(device_y, device_x, device_k, B, M, C, H, W, K);
+    size_t shared_X_size = BLOCK_WIDTH * BLOCK_WIDTH * sizeof(float);
+    conv_forward_kernel<<<gridDim, blockDim, shared_X_size>>>(device_y, device_x, device_k, B, M, C, H, W, K);
     cudaDeviceSynchronize();
 }
 

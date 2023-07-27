@@ -38,7 +38,6 @@ int main() {
 
   std::cout<<"Adding layers to network...";
   dnn.add_layer(conv1);
-  std::cout<<"Adding layers to CONV ";
   dnn.add_layer(relu1);
   dnn.add_layer(pool1);
   dnn.add_layer(conv2);
@@ -47,7 +46,7 @@ int main() {
   dnn.add_layer(fc3);
   dnn.add_layer(relu3);
   dnn.add_layer(fc4);
-  dnn.add_layer(softmax);
+  dnn.add_layer(softmax);  
   std::cout<<"Done"<<std::endl;
 
   std::cout<<"Loading weights...";
